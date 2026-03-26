@@ -1,5 +1,3 @@
-// Fichier : js/views/HistoriqueView.js
-
 class HistoriqueView {
     constructor() {
         this.ctx = document.getElementById('historique-graph');
