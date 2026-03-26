@@ -64,7 +64,15 @@ class AlertView {
         this.dialog.showModal(); 
     }
 
-    // ... (méthodes demanderPermissionNotification et afficherStats inchangées)
+    // Cette fonction reçoit maintenant un OBJET complet (alerteData)
+    afficherDetail(alerteData) {
+        document.getElementById('alerte-msg').textContent = alerteData.message;
+        document.getElementById('alerte-capteur').textContent = alerteData.capteur;
+        document.getElementById('alerte-val').textContent = alerteData.valeur;
+        document.getElementById('alerte-date').textContent = alerteData.date;
+        
+        this.dialog.showModal(); 
+    }
 
     envoyerNotificationPush(titre, alerteData) {
         if (Notification.permission === 'granted') {
@@ -113,6 +121,51 @@ class AlertView {
 
             this.container.appendChild(alerteDiv);
             this.envoyerNotificationPush("Alerte " + alerteData.capteur, alerteData);
+        });
+    }
+
+    afficherTemperaturesDirect(int, ext) {
+        const valInt = document.getElementById('valeur-int');
+        const valExt = document.getElementById('valeur-ext');
+        if (valInt) valInt.textContent = int;
+        if (valExt) valExt.textContent = ext;
+    }
+
+    afficherStats(stats) {
+        this.statsContainer.innerHTML = `
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <strong>Intérieur :</strong> Min ${stats.interieur.min}°C | Max ${stats.interieur.max}°C <br>
+                <strong>Extérieur :</strong> Min ${stats.exterieur.min}°C | Max ${stats.exterieur.max}°C
+            </div>
+        `;
+    }
+
+    afficherAlertes(alertes) {
+        this.container.innerHTML = ''; 
+        if (alertes.length === 0) return;
+
+        alertes.forEach(alerteData => {
+            const alerteDiv = document.createElement('div');
+            alerteDiv.setAttribute('role', 'alert');
+            alerteDiv.className = 'alerte-box';
+            
+            // On affiche juste le message sur la page principale
+            alerteDiv.textContent = alerteData.message; 
+            
+            alerteDiv.style.cursor = 'pointer';
+            alerteDiv.style.background = '#ffe4e6'; 
+            alerteDiv.style.borderLeft = '5px solid #e11d48';
+            alerteDiv.style.padding = '15px';
+            alerteDiv.style.marginBottom = '10px';
+            alerteDiv.style.borderRadius = '4px';
+
+            // Au clic, on ouvre les détails !
+            alerteDiv.addEventListener('click', () => {
+                this.afficherDetail(alerteData);
+            });
+
+            this.container.appendChild(alerteDiv);
+            this.envoyerNotificationPush("Alerte Domotique", alerteData);
         });
     }
 
