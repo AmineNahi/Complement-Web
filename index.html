@@ -29,21 +29,35 @@
         <div id="stats-container"></div>
         <div id="alert-container" aria-live="polite"></div>
 
-        <div class="capteurs-container">
-            <capteur-thermique id="capteur-int">
-                <span slot="nom">Intérieur</span>
-                <span slot="valeur" id="valeur-int">--</span>
-            </capteur-thermique>
+        <div class="tabs">
+            <div class="tab-registers" role="tablist" aria-label="Sections du tableau de bord">
+                <button class="active-tab" role="tab" aria-selected="true"  aria-controls="panel-realtime" id="tab-realtime" tabindex="0">Données en temps réel</button>
+                <button role="tab" aria-selected="false" aria-controls="panel-history"  id="tab-history"  tabindex="-1">Historique</button>
+            </div>
 
-            <capteur-thermique id="capteur-ext">
-                <span slot="nom">Extérieur</span>
-                <span slot="valeur" id="valeur-ext">--</span>
-            </capteur-thermique>
-        </div>
+            <div class="tab-bodies">
 
-        <div class="graph-container">
-            <h2>Historique des dernières 24h</h2>
-            <canvas id="historique-graph"></canvas>
+            <!-- Onglet 1 : capteurs -->
+                <div id="panel-realtime" role="tabpanel" aria-labelledby="tab-realtime">
+                    <div class="capteurs-container">
+                        <capteur-thermique id="capteur-int">
+                            <span slot="nom">Intérieur</span>
+                            <span slot="valeur" id="valeur-int">--</span>
+                        </capteur-thermique>
+                        <capteur-thermique id="capteur-ext">
+                            <span slot="nom">Extérieur</span>
+                            <span slot="valeur" id="valeur-ext">--</span>
+                        </capteur-thermique>
+                    </div>
+                </div>
+            <!-- Onglet 2 : historique -->
+                <div id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden>
+                    <div class="graph-container">
+                        <h2>Historique des dernières 24h</h2>
+                            <canvas id="historique-graph"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </main> 
 
@@ -70,6 +84,7 @@
     <script src="./js/Model/AlertModel.js"></script>
     <script src="./js/View/AlerteView.js"></script>
     <script src="./js/Controllers/AlerteController.js"></script>
+    <script src="./js/View/Onglet.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/View/HistoriqueView.js"></script>
