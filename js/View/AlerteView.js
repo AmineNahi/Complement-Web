@@ -56,4 +56,12 @@ class AlertView {
             this.envoyerNotificationPush("Alerte Domotique", message);
         });
     }
+
+    afficherTemperaturesDirect(int, ext) {
+        const valInt = document.getElementById('valeur-int');
+        const valExt = document.getElementById('valeur-ext');
+        
+        if (valInt) valInt.textContent = int;
+        if (valExt) valExt.textContent = ext;
+    }
 }
