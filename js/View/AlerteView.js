@@ -25,7 +25,7 @@ class AlertView {
         if (Notification.permission === 'granted') {
             const options = {
                 body: message,
-                icon: '/assets/images/android-chrome-192x192.png' 
+                icon: '/assets/favicon.png' 
             };
             const notif = new Notification(titre, options);
         }
