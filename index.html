@@ -44,28 +44,6 @@
     </main>
 
     <template id="capteur-template">
-        <style>
-            /* Le CSS défini ici est isolé dans le Shadow DOM ! */
-            .capteur-box {
-                border: 2px solid #e2e8f0;
-                border-radius: 12px;
-                padding: 20px;
-                text-align: center;
-                min-width: 150px;
-                background-color: #f8fafc;
-            }
-            .nom {
-                font-size: 1.2rem;
-                font-weight: bold;
-                color: #475569;
-            }
-            .valeur {
-                font-size: 2.5rem;
-                font-weight: bold;
-                color: #e11d48; /* Rouge HotHotHot */
-                margin-top: 10px;
-            }
-        </style>
 
         <div class="capteur-box" role="region" aria-label="Capteur de température">
             <div class="nom">
@@ -77,33 +55,9 @@
         </div>
     </template>
 
-    <script>
-        // Création du Web Component basé sur le cours (Shadow DOM)
-        customElements.define('capteur-thermique',
-            class extends HTMLElement {
-                constructor() {
-                    super(); // Toujours appeler super en premier [cite: 305]
-                    
-                    // On récupère le contenu du template [cite: 442, 443, 444]
-                    const template = document.getElementById('capteur-template').content;
-                    
-                    // On attache le Shadow DOM et on y injecte un clone du template 
-                    this.attachShadow({mode: 'open'})
-                        .appendChild(template.cloneNode(true));
-                }
-            }
-        );
-    </script>
 
     <script src="./js/models/AlertModel.js"></script>
     <script src="./js/views/AlertView.js"></script>
-    <script src="./js/controllers/AlertController.js"></script>
 
-    <script>
-        // Initialisation de l'application une fois le DOM chargé
-        window.addEventListener('load', () => {
-            const app = new AlertController(new AlertModel(), new AlertView());
-        });
-    </script>
   </body>
 </html>
