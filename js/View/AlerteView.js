@@ -1,30 +1,59 @@
 class AlertView {
     constructor() {
-        // Cibler l'élément HTML qui contiendra les alertes
         this.container = document.getElementById('alert-container');
+        this.btnNotif = document.getElementById('btn-notifications');
+        this.statsContainer = document.getElementById('stats-container'); 
+    }
+
+    demanderPermissionNotification() {
+        if (!("Notification" in window)) {
+            console.log("Ce navigateur ne supporte pas les notifications desktop");
+            return;
+        }
+
+        Notification.requestPermission().then((result) => {
+            if (result === 'granted') { 
+                console.log("Super, les notifications sont activées !");
+                this.btnNotif.style.display = 'none';
+            } else {
+                console.log("L'utilisateur a refusé les notifications.");
+            }
+        });
+    }
+
+    envoyerNotificationPush(titre, message) {
+        if (Notification.permission === 'granted') {
+            const options = {
+                body: message,
+                icon: '/assets/images/android-chrome-192x192.png' 
+            };
+            const notif = new Notification(titre, options);
+        }
+    }
+
+    afficherStats(stats) {
+        this.statsContainer.innerHTML = `
+            <div>
+                <strong>Intérieur :</strong> Min ${stats.interieur.min}°C | Max ${stats.interieur.max}°C
+            </div>
+            <div>
+                <strong>Extérieur :</strong> Min ${stats.exterieur.min}°C | Max ${stats.exterieur.max}°C
+            </div>
+        `;
     }
 
     afficherAlertes(alertes) {
-        this.container.innerHTML = ''; // On nettoie les anciennes alertes
+        this.container.innerHTML = ''; 
         
         if (alertes.length === 0) return;
 
         alertes.forEach(message => {
-            // 1. Affichage sur la page (Boîte de dialogue)
             const alerteDiv = document.createElement('div');
-            alerteDiv.setAttribute('role', 'alert'); // Important pour l'accessibilité
+            alerteDiv.setAttribute('role', 'alert');
             alerteDiv.className = 'alerte-box';
             alerteDiv.textContent = message;
             this.container.appendChild(alerteDiv);
-
-            // 2. Déclenchement de la notification Push (si autorisé)
-            this.declencherNotification(message);
+            this.envoyerNotificationPush("Alerte Domotique", message);
         });
-    }
-
-    declencherNotification(message) {
-        if (Notification.permission === 'granted') {
-            new Notification("Alerte HotHotHot", { body: message });
-        }
     }
 }
