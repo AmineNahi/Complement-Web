@@ -1,93 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>HOT HOT HOT</title>
-    <link rel="shortcut icon" href="assets/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="./css/styleAcceuil.css">
-  </head>
-  <body>
-    <nav class="menu">
-      <ul>
-        <li><a href="index.html">Accueil</a></li>
-        <li><a href="documentation.html">Documentation</a></li>
-        <li><a href="">Information du compte</a></li>
-        <li><a href="">Déconnexion</a></li>
-      </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#534AB7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MonPWA">
+
+  <title>Mon Projet PWA</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Zone d'en-tête principale -->
+  <header role="banner">
+    <nav id="main-nav" role="navigation" aria-label="Menu principal">
+      <!-- Généré dynamiquement par NavigationView.init() -->
     </nav>
+  </header>
 
-    <main>
-        <h1>Tableau de bord domotique</h1> 
+  <!--
+    Zone de contenu principal
+  -->
+  <main id="app-content" role="main" aria-live="polite" aria-atomic="true">
+    <!-- Pages chargées dynamiquement -->
+  </main>
 
-        <div class="actions-container">
-            <button id="btn-notifications">Activer les notifications</button>
-            <button class="add-button">Installer l'application</button>
-        </div>
+  <script type="module" src="js/main.js"></script>
 
-        <div id="stats-container"></div>
-        <div id="alert-container" aria-live="polite"></div>
-
-        <div class="capteurs-container">
-            <capteur-thermique id="capteur-int">
-                <span slot="nom">Intérieur</span>
-                <span slot="valeur" id="valeur-int">--</span>
-            </capteur-thermique>
-
-            <capteur-thermique id="capteur-ext">
-                <span slot="nom">Extérieur</span>
-                <span slot="valeur" id="valeur-ext">--</span>
-            </capteur-thermique>
-        </div>
-
-        <div class="graph-container">
-            <h2>Historique des dernières 24h</h2>
-            <canvas id="historique-graph"></canvas>
-        </div>
-    </main> 
-
-    <template id="capteur-template">
-        <link rel="stylesheet" href="./css/styleAcceuil.css">
-        <div class="capteur-box" role="region" aria-label="Capteur de température">
-            <div class="nom"><slot name="nom">Capteur Inconnu</slot></div>
-            <div class="valeur"><slot name="valeur">0</slot> °C</div>
-        </div>
-    </template>
-
-    <script>
-        customElements.define('capteur-thermique',
-            class extends HTMLElement {
-                constructor() {
-                    super();
-                    const template = document.getElementById('capteur-template').content;
-                    this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-                }
-            }
-        );
-    </script>
-
-    <script src="./js/Model/AlertModel.js"></script>
-    <script src="./js/View/AlerteView.js"></script>
-    <script src="./js/Controllers/AlerteController.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="./js/View/HistoriqueView.js"></script>
-
-    <script>
-        window.addEventListener('load', () => {
-            try {
-                const historique = new HistoriqueView();
-            } catch (error) {
-                console.error("Problème avec le graphique :", error);
-            }
-
-            try {
-                const appAlertes = new AlertController(new AlertModel(), new AlertView());
-            } catch (error) {
-                console.warn("Info: Le MVC n'est pas encore actif ou les fichiers sont manquants, mais l'interface continue de fonctionner.");
-            }
-        });
-    </script>
-  </body>
+</body>
 </html>
