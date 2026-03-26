@@ -53,13 +53,13 @@ websocket.addEventListener("close", async (event) => {
     if (val.capteurs){
       ListCurrentTemp = (val.capteurs)
     }
-    // displayValue()
+    displayValue()
   }
 });
 
 function displayValue(){
-  const main = document.getElementById("main")
-  main.innerHTML = "";
+  const main = document.getElementById("capteurs-container")
+  // main.innerHTML = "";
   console.log(ListCurrentTemp)
   ListCurrentTemp.forEach((capteur) => {
       const nameCapteur = document.createElement("div")
@@ -67,9 +67,10 @@ function displayValue(){
       const currentTemp = document.createElement("div")
       currentTemp.textContent = capteur.Value 
 
+      const slotTemp = document.createElement("div")
       slotTemp.appendChild(currentTemp)
       slotTemp.appendChild(nameCapteur)
-      main.childNodes.add(slotTemp)
+      main.appendChild(slotTemp)
     } 
   ) 
 } 
