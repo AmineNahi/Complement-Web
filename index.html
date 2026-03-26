@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HOT HOT HOT</title>
+    <link rel="stylesheet" href="./css/styleAcceuil.css">
+  </head>
+  <body>
+    <nav class="menu">
+      <ul>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="documentation.html">Documentation</a></li>
+        <li><a href="">Information du compte</a></li>
+        <li><a href="">Déconnexion</a></li>
+      </ul>
+    </nav>
+
+    <main>
+        <h1>Tableau de bord domotique</h1> 
+
+        <div class="actions-container">
+            <button id="btn-notifications">Activer les notifications</button>
+            <button class="add-button" style="display: none;">Installer l'application</button>
+        </div>
+
+        <div id="stats-container"></div>
+        <div id="alert-container" aria-live="polite"></div>
+
+        <div class="capteurs-container" style="display: flex; gap: 20px; margin-top: 30px;">
+            
+            <capteur-thermique id="capteur-int">
+                <span slot="nom">Intérieur</span>
+                <span slot="valeur" id="valeur-int">--</span>
+            </capteur-thermique>
+
+            <capteur-thermique id="capteur-ext">
+                <span slot="nom">Extérieur</span>
+                <span slot="valeur" id="valeur-ext">--</span>
+            </capteur-thermique>
+
+        </div>
+    </main>
+
+    <template id="capteur-template">
+
+        <div class="capteur-box" role="region" aria-label="Capteur de température">
+            <div class="nom">
+                <slot name="nom">Capteur Inconnu</slot> 
+            </div>
+            <div class="valeur">
+                <slot name="valeur">0</slot> °C
+            </div>
+        </div>
+    </template>
+
+
+    <script src="./js/models/AlertModel.js"></script>
+    <script src="./js/views/AlertView.js"></script>
+
+  </body>
+</html>
