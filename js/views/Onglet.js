@@ -1,12 +1,13 @@
+/*
 const tabs = document.querySelectorAll('[role="tab"]');
 const panels = document.querySelectorAll('[role="tabpanel"]');
 
 tabs.forEach((tab, i) => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => {
-      t.classList.remove('active-tab');
-      t.setAttribute('aria-selected', 'false');
-      t.setAttribute('tabindex', '-1');
+    t.classList.remove('active-tab');
+    t.setAttribute('aria-selected', 'false');
+    t.setAttribute('tabindex', '-1');
     });
     panels.forEach(p => p.hidden = true);
 
@@ -16,3 +17,4 @@ tabs.forEach((tab, i) => {
     panels[i].hidden = false;
   });
 });
+*/
