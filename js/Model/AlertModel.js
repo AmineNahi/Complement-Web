@@ -22,7 +22,7 @@ class AlertModel {
             const valeur = parseFloat(capteur.Valeur);
             const ts = capteur.Timestamp;
 
-            if (isNaN(valeur)) return; // Ignorer les valeurs non numériques
+            if (isNaN(valeur)) return;
 
             if (nom === "interieur") {
                 this.tempInterieure = valeur;
@@ -69,7 +69,7 @@ class AlertModel {
         if (this.tempExterieure !== null) {
             if (this.tempExterieure > 35) {
                 nouvellesAlertes.push({
-                    message: "Hot Hot Hot !",
+                    message: "Hot Hot Hot!",
                     capteur: "Extérieur",
                     valeur: this.tempExterieure,
                     date: dateExt
@@ -84,9 +84,6 @@ class AlertModel {
             }
         }
 
-        // --- Seuils Intérieurs ---
-        // IMPORTANT : tester > 50 AVANT > 22 (sinon le cas > 50 est absorbé par > 22)
-        // De même, tester < 0 AVANT < 12
         if (this.tempInterieure !== null) {
             if (this.tempInterieure > 50) {
                 nouvellesAlertes.push({
@@ -104,14 +101,14 @@ class AlertModel {
                 });
             } else if (this.tempInterieure < 0) {
                 nouvellesAlertes.push({
-                    message: "Canalisations gelées, appelez SOS plombier et mettez un bonnet !",
+                    message: "canalisations gelées, appelez SOS plombier et mettez un bonnet!",
                     capteur: "Intérieur",
                     valeur: this.tempInterieure,
                     date: dateInt
                 });
             } else if (this.tempInterieure < 12) {
                 nouvellesAlertes.push({
-                    message: "Montez le chauffage ou mettez un gros pull !",
+                    message: "montez le chauffage ou mettez un gros pull!",
                     capteur: "Intérieur",
                     valeur: this.tempInterieure,
                     date: dateInt

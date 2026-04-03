@@ -3,6 +3,33 @@ class AlertView {
         this.container = document.getElementById('alert-container');
         this.btnNotif = document.getElementById('btn-notifications');
         this.creerBoiteDeDialogue();
+        this._mettreAJourBoutonNotif();
+    }
+
+    // Met à jour le texte/état du bouton selon la permission actuelle
+    _mettreAJourBoutonNotif() {
+        if (!this.btnNotif) return;
+
+        if (!('Notification' in window)) {
+            this.btnNotif.textContent = "Notifications non supportées";
+            this.btnNotif.disabled = true;
+            return;
+        }
+
+        switch (Notification.permission) {
+            case 'granted':
+                this.btnNotif.textContent = "✔ Notifications activées";
+                this.btnNotif.disabled = true;
+                break;
+            case 'denied':
+                this.btnNotif.textContent = "🚫 Notifications bloquées";
+                this.btnNotif.disabled = true;
+                this.btnNotif.title = "Autorisez les notifications dans les préférences de votre navigateur.";
+                break;
+            default:
+                this.btnNotif.textContent = "Activer les notifications";
+                this.btnNotif.disabled = false;
+        }
     }
 
     creerBoiteDeDialogue() {
@@ -53,30 +80,44 @@ class AlertView {
         this.dialog.showModal();
     }
 
-    demanderPermissionNotification() {
-        if ('Notification' in window) {
-            Notification.requestPermission();
-        } else {
-            console.warn("Les notifications ne sont pas supportées par ce navigateur.");
+    async demanderPermissionNotification() {
+        if (!('Notification' in window)) {
+            alert("Votre navigateur ne supporte pas les notifications.");
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            alert("Les notifications sont bloquées. Veuillez les autoriser dans les préférences de votre navigateur (Safari → Préférences → Sites web → Notifications).");
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        this._mettreAJourBoutonNotif();
+
+        if (permission === 'granted') {
+            // Notification de test pour confirmer que ça fonctionne
+            new Notification("HOT HOT HOT", {
+                body: "Les notifications sont activées !",
+                icon: 'assets/favicon.png'
+            });
         }
     }
 
     envoyerNotificationPush(titre, alerteData) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            const notif = new Notification(titre, {
-                body: alerteData.message,
-                icon: 'assets/favicon.png'
-            });
-            notif.onclick = () => {
-                window.focus();
-                this.afficherDetail(alerteData);
-            };
-        }
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+        const notif = new Notification(titre, {
+            body: alerteData.message,
+            icon: 'assets/favicon.png'
+        });
+        notif.onclick = () => {
+            window.focus();
+            this.afficherDetail(alerteData);
+        };
     }
 
     afficherAlertes(alertes) {
         this.container.innerHTML = '';
-
         if (alertes.length === 0) return;
 
         alertes.forEach(alerteData => {
@@ -84,7 +125,7 @@ class AlertView {
             div.setAttribute('role', 'alert');
             div.className = 'alerte-box';
             div.textContent = alerteData.message;
-            div.setAttribute('tabindex', '0'); // Focusable au clavier
+            div.setAttribute('tabindex', '0');
             div.setAttribute('aria-label', `Alerte : ${alerteData.message}. Cliquer pour les détails.`);
             div.style.cssText = "cursor: pointer; background: #ffe4e6; border-left: 5px solid #e11d48; padding: 15px; margin-bottom: 10px; border-radius: 4px;";
 
