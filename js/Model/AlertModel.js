@@ -1,5 +1,6 @@
 class AlertModel {
-    constructor() {
+    constructor(listcapteur) {
+        this.capteurOfApp = listcapteur;
         this.tempInterieure = null;
         this.tempExterieure = null;
 
@@ -14,29 +15,38 @@ class AlertModel {
         this.alertesActuelles = [];
     }
 
-    traiterDonneesBrutes(capteurs) {
+    traiterDonneesBrutes(capteursModels) {
         let miseAJour = false;
 
-        capteurs.forEach(capteur => {
-            const nom = capteur.Nom ? capteur.Nom.toLowerCase() : "";
-            const valeur = parseFloat(capteur.Valeur);
-            const ts = capteur.Timestamp;
+        capteursModels.forEach(capteur => {
+            const nomOriginal = capteur.name ? capteur.name.toLowerCase() : "";
+            const nom = nomOriginal.includes("interieur") ? "interieur" : 
+                        nomOriginal.includes("exterieur") ? "exterieur" : nomOriginal;
+
+            const valeur = parseFloat(capteur.temp);
+            const ts = capteur.timeStamp;
 
             if (isNaN(valeur)) return;
 
             if (nom === "interieur") {
-                this.tempInterieure = valeur;
-                this.timestampInt = ts;
-                miseAJour = true;
-                if (valeur < this.minInt) this.minInt = valeur;
-                if (valeur > this.maxInt) this.maxInt = valeur;
+                if (this.tempInterieure !== valeur) {
+                    this.tempInterieure = valeur;
+                    this.timestampInt = ts;
+                    miseAJour = true; 
+                    
+                    if (valeur < this.minInt) this.minInt = valeur;
+                    if (valeur > this.maxInt) this.maxInt = valeur;
+                }
 
             } else if (nom === "exterieur") {
-                this.tempExterieure = valeur;
-                this.timestampExt = ts;
-                miseAJour = true;
-                if (valeur < this.minExt) this.minExt = valeur;
-                if (valeur > this.maxExt) this.maxExt = valeur;
+                if (this.tempExterieure !== valeur) {
+                    this.tempExterieure = valeur;
+                    this.timestampExt = ts;
+                    miseAJour = true; 
+                    
+                    if (valeur < this.minExt) this.minExt = valeur;
+                    if (valeur > this.maxExt) this.maxExt = valeur;
+                }
             }
         });
 
@@ -53,7 +63,7 @@ class AlertModel {
         }
 
         return null;
-    }
+    }   
 
     analyserSeuils() {
         const nouvellesAlertes = [];
@@ -65,7 +75,6 @@ class AlertModel {
             ? new Date(this.timestampExt * 1000).toLocaleString('fr-FR')
             : "N/A";
 
-        // --- Seuils Extérieurs ---
         if (this.tempExterieure !== null) {
             if (this.tempExterieure > 35) {
                 nouvellesAlertes.push({
@@ -92,7 +101,7 @@ class AlertModel {
                     valeur: this.tempInterieure,
                     date: dateInt
                 });
-            } else if (this.tempInterieure > 22) {
+            } else if (this.tempInterieure > 0) {
                 nouvellesAlertes.push({
                     message: "Baissez le chauffage !",
                     capteur: "Intérieur",
