@@ -9,83 +9,128 @@
     <link rel="stylesheet" href="./css/styleAcceuil.css">
   </head>
   <body>
-    <nav class="menu">
+    <nav class="menu" role="navigation" aria-label="Menu principal">
       <ul>
-        <li><a href="index.html">Accueil</a></li>
+        <li><a href="index.html" aria-current="page">Accueil</a></li>
         <li><a href="documentation.html">Documentation</a></li>
         <li><a href="">Information du compte</a></li>
         <li><a href="">Déconnexion</a></li>
       </ul>
     </nav>
+
     <main>
-        <h1>Tableau de bord domotique</h1> 
+        <h1>Tableau de bord domotique</h1>
 
         <div class="actions-container">
-            <button id="btn-notifications">Activer les notifications</button>
-            <button class="add-button">Installer l'application</button>
+            <button id="btn-notifications" aria-label="Activer les notifications push">Activer les notifications</button>
+            <button class="add-button" id="btn-install" aria-label="Installer l'application sur l'appareil">Installer l'application</button>
         </div>
 
-        <div id="stats-container"></div>
-        <div id="alert-container" aria-live="polite"></div>
+        <div id="stats-container" role="region" aria-label="Synthèse journalière des températures"></div>
+        <div id="alert-container" aria-live="polite" aria-label="Zone d'alertes"></div>
 
-        <div class="capteurs-container">
-            <capteur-thermique id="capteur-int">
-                <span slot="nom">Intérieur</span>
-                <span slot="valeur" id="valeur-int">--</span>
-            </capteur-thermique>
-
-            <capteur-thermique id="capteur-ext">
-                <span slot="nom">Extérieur</span>
-                <span slot="valeur" id="valeur-ext">--</span>
-            </capteur-thermique>
+        <div class="capteurs-container" role="region" aria-label="Capteurs de température">
+            <capteur-thermique id="capteur-int" nom="Intérieur"></capteur-thermique>
+            <capteur-thermique id="capteur-ext" nom="Extérieur"></capteur-thermique>
         </div>
 
-        <div class="graph-container">
+        <div class="graph-container" role="region" aria-label="Historique des températures sur 24 heures">
             <h2>Historique des dernières 24h</h2>
-            <canvas id="historique-graph"></canvas>
+            <canvas id="historique-graph" role="img" aria-label="Graphique des températures intérieure et extérieure sur 24h"></canvas>
         </div>
-    </main> 
+    </main>
 
-    <template id="capteur-template">
-        <link rel="stylesheet" href="./css/styleAcceuil.css">
-        <div class="capteur-box" role="region" aria-label="Capteur de température">
-            <div class="nom"><slot name="nom">Capteur Inconnu</slot></div>
-            <div class="valeur"><slot name="valeur">0</slot> °C</div>
-        </div>
-    </template>
-     <script src = "./js/data/webSocket.js"></script>
+    <!-- Web Component capteur-thermique -->
     <script>
         customElements.define('capteur-thermique',
             class extends HTMLElement {
                 constructor() {
                     super();
-                    const template = document.getElementById('capteur-template').content;
-                    this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
+                    const shadow = this.attachShadow({ mode: 'open' });
+                    shadow.innerHTML = `
+                        <link rel="stylesheet" href="./css/styleAcceuil.css">
+                        <div class="capteur-box" role="region">
+                            <div class="nom"></div>
+                            <div class="valeur" aria-live="polite" aria-atomic="true">
+                                <span class="val">--</span> °C
+                            </div>
+                        </div>`;
+                    shadow.querySelector('.nom').textContent = this.getAttribute('nom') || '';
+                    shadow.querySelector('.capteur-box').setAttribute(
+                        'aria-label',
+                        `Capteur ${this.getAttribute('nom') || ''}`
+                    );
                 }
+                setValeur(v) { this.shadowRoot.querySelector('.val').textContent = v; }
+                setNom(n)    { this.shadowRoot.querySelector('.nom').textContent = n; }
             }
         );
     </script>
 
+    <!-- Modèles -->
     <script src="./js/Model/AlertModel.js"></script>
+
+    <!-- Vues -->
     <script src="./js/View/AlerteView.js"></script>
+    <script src="./js/View/CapteurView.js"></script>
+
+    <!-- Contrôleur -->
     <script src="./js/Controllers/AlerteController.js"></script>
 
+    <!-- Chart.js puis HistoriqueView -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/View/HistoriqueView.js"></script>
 
+    <!-- WebSocket : chargé ici mais la CONNEXION est déclenchée plus bas, après init MVC -->
+    <script src="./js/data/webSocket.js"></script>
+
     <script>
         window.addEventListener('load', () => {
+
+            // 1. Graphique d'historique
             try {
-                const historique = new HistoriqueView();
-            } catch (error) {
-                console.error("Problème avec le graphique :", error);
+                window.historiqueView = new HistoriqueView();
+            } catch (err) {
+                console.error("Problème graphique :", err);
             }
 
+            // 2. MVC
             try {
-                const appAlertes = new AlertController(new AlertModel(), new AlertView());
-            } catch (error) {
-                console.warn("Info: Le MVC n'est pas encore actif ou les fichiers sont manquants, mais l'interface continue de fonctionner.");
+                window.appAlertes = new AlertController(
+                    new AlertModel(),
+                    new AlertView(),
+                    new CapteurView()
+                );
+            } catch (err) {
+                console.error("Erreur init MVC :", err);
             }
+
+            // 3. WebSocket — démarré APRÈS que window.appAlertes soit prêt
+            try {
+                window.connecterWebSocket();
+            } catch (err) {
+                console.error("Erreur WebSocket :", err);
+            }
+
+            // 4. Bouton installation PWA
+            let deferredPrompt = null;
+            const btnInstall = document.getElementById('btn-install');
+            btnInstall.style.display = 'none';
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                btnInstall.style.display = 'inline-block';
+            });
+
+            btnInstall.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Installation : ${outcome}`);
+                deferredPrompt = null;
+                btnInstall.style.display = 'none';
+            });
         });
     </script>
   </body>

@@ -1,76 +1,82 @@
 const wsUri = "wss://ws.hothothot.dog:9502";
-const apiUrl ="https://api.hothothot.dog/";
+const apiUrl = "https://api.hothothot.dog/";
 
-let ListCurrentTemp = [];
+const log = (msg) => console.log(`[WebSocket] ${msg}`);
 
-async function getData(){
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
+// --- Fallback AJAX sur l'API REST ---
+async function demarrerFallbackAPI() {
+    log("Passage en mode secours API (AJAX).");
+
+    async function fetchAPI() {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const capteurs = Array.isArray(data) ? data : data.capteurs;
+            console.log("[API] données reçues :", capteurs);
+            if (capteurs && window.appAlertes) {
+                window.appAlertes.traiterDonnees(capteurs);
+            }
+        } catch (err) {
+            console.error("[API] Erreur fetch :", err);
+            // Si l'API est aussi inaccessible, on utilise les données mock
+            if (window.appAlertes) {
+                window.appAlertes.traiterDonnees([
+                    { type: "Thermique", Nom: "interieur", Valeur: "16.5", Timestamp: Math.floor(Date.now() / 1000) },
+                    { type: "Thermique", Nom: "exterieur", Valeur: "10",   Timestamp: Math.floor(Date.now() / 1000) }
+                ]);
+            }
+        }
     }
 
-    const result = await response.json();
-    return(result)
-
-  } catch (error) {
-    console.error(error.message);
-  }
+    // Premier appel immédiat puis toutes les 5 secondes
+    fetchAPI();
+    setInterval(fetchAPI, 5000);
 }
 
-const websocket = new WebSocket(wsUri);
-websocket.addEventListener("open", () => {
-  log("CONNECTED");
-  pingInterval = setInterval(() => {
-    log(`SENT: ping: ${counter}`);
-    websocket.send("ping");
-  }, 1000);
-});
+// --- Connexion WebSocket principale ---
+function connecterWebSocket() {
+    const websocket = new WebSocket(wsUri);
 
-websocket.addEventListener("message", (e) =>{
-  const message = JSON.parse(e.data);
-  log(`RECEIVED: ${message.iteration}: ${message.content}`);
-  counter++;
-});
+    websocket.addEventListener("open", () => {
+        log("CONNECTED");
+        setInterval(() => {
+            if (websocket.readyState === WebSocket.OPEN) {
+                websocket.send("ping");
+            }
+        }, 1000);
+    });
 
-websocket.addEventListener("close", async (event) => {
-  // event.wasClean est false si la connexion a crashé ou n'a pas pu s'établir
-  if (!event.wasClean) {
-    console.log("Le serveur WebSocket ne fonctionne pas ou la connexion a été perdue. Adoption de la méthode API AJAX.");
+    websocket.addEventListener("message", (e) => {
+        if (e.data === "pong" || e.data === "ping") return;
+        try {
+            const data = JSON.parse(e.data);
+            const capteurs = Array.isArray(data) ? data : data.capteurs;
+            console.log("[WS] data brute:", e.data);
+            console.log("[WS] capteurs:", capteurs);
+            if (capteurs && window.appAlertes) {
+                window.appAlertes.traiterDonnees(capteurs);
+            }
+        } catch (err) {
+            console.error("[WS] Erreur parse:", err, e.data);
+        }
+    });
 
-    // Lancement de ton plan de secours
-    // let val = await getData();
-    let val = {"HotHotHot":"Api v1.0",
-      "capteurs":
-      [{"type":"Thermique",
-      "Nom":"interieur",
-      "Valeur":"16.5",
-      "Timestamp":1774513321},{"type":"Thermique",
-      "Nom":"exterieur",
-      "Valeur":"10",
-      "Timestamp":1774513321}]
-    }
-    if (val.capteurs){
-      ListCurrentTemp = (val.capteurs)
-    }
-    // displayValue()
-  }
-});
+    websocket.addEventListener("close", (event) => {
+        if (!event.wasClean) {
+            log("Serveur WebSocket déconnecté. Tentative API REST...");
+            demarrerFallbackAPI();
+        } else {
+            log(`Connexion fermée proprement. Code : ${event.code}`);
+        }
+    });
 
-function displayValue(){
-  const main = document.getElementById("main")
-  main.innerHTML = "";
-  console.log(ListCurrentTemp)
-  ListCurrentTemp.forEach((capteur) => {
-      const nameCapteur = document.createElement("div")
-      nameCapteur.textContent = capteur.Nom
-      const currentTemp = document.createElement("div")
-      currentTemp.textContent = capteur.Value 
+    websocket.addEventListener("error", (err) => {
+        console.error("[WS] Erreur WebSocket :", err);
+    });
 
-      slotTemp.appendChild(currentTemp)
-      slotTemp.appendChild(nameCapteur)
-      main.childNodes.add(slotTemp)
-    } 
-  ) 
-} 
+    return websocket;
+}
 
+// Appelé par index.html APRÈS l'initialisation du MVC
+window.connecterWebSocket = connecterWebSocket;

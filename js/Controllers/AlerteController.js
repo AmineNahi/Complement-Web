@@ -1,27 +1,50 @@
 class AlertController {
-    constructor(model, view) {
+    constructor(model, alertView, capteurView) {
         this.model = model;
-        this.view = view;
-        this.initEvents();
-    }
+        this.alertView = alertView;
+        this.capteurView = capteurView;
 
-    initEvents() {
-        if (this.view.btnNotif) {
-            this.view.btnNotif.addEventListener('click', () => { 
-                this.view.demanderPermissionNotification();
+        // Bouton notification : demander la permission
+        if (this.alertView.btnNotif) {
+            this.alertView.btnNotif.addEventListener('click', () => {
+                this.alertView.demanderPermissionNotification();
             });
         }
     }
 
+    /**
+     * Point d'entrée principal : reçoit le tableau brut des capteurs depuis le WebSocket.
+     * Délègue l'analyse au modèle, puis met à jour les vues.
+     * @param {Array} capteurs - Tableau d'objets capteurs { Nom, Valeur, Timestamp, type }
+     */
     traiterDonnees(capteurs) {
-        // Donne le tableau brut au Modèle
+        if (!Array.isArray(capteurs) || capteurs.length === 0) {
+            console.warn("[AlertController] Données reçues invalides ou vides.");
+            return;
+        }
+
         const resultat = this.model.traiterDonneesBrutes(capteurs);
 
-        // On met à jour la Vue
         if (resultat) {
-            this.view.afficherAlertes(resultat.alertes);
-            this.view.afficherStats(resultat.stats);
-            this.view.afficherTemperaturesDirect(resultat.valeursDirectes.int, resultat.valeursDirectes.ext); 
+            // Mise à jour de la vue des alertes
+            this.alertView.afficherAlertes(resultat.alertes);
+
+            // Mise à jour de la vue des capteurs (valeurs en temps réel)
+            this.capteurView.afficherTemperaturesDirect(
+                resultat.valeursDirectes.int,
+                resultat.valeursDirectes.ext
+            );
+
+            // Mise à jour de la synthèse min/max
+            this.capteurView.afficherStats(resultat.stats);
+
+            // Mise à jour du graphique historique si disponible
+            if (window.historiqueView) {
+                window.historiqueView.ajouterPoint(
+                    resultat.valeursDirectes.int,
+                    resultat.valeursDirectes.ext
+                );
+            }
         }
     }
 }
