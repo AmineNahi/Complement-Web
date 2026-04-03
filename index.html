@@ -40,7 +40,7 @@
         </div>
     </main>
 
-    <!-- Web Component capteur-thermique -->
+    <!-- Web Component -->
     <script>
         customElements.define('capteur-thermique',
             class extends HTMLElement {
@@ -56,10 +56,7 @@
                             </div>
                         </div>`;
                     shadow.querySelector('.nom').textContent = this.getAttribute('nom') || '';
-                    shadow.querySelector('.capteur-box').setAttribute(
-                        'aria-label',
-                        `Capteur ${this.getAttribute('nom') || ''}`
-                    );
+                    shadow.querySelector('.capteur-box').setAttribute('aria-label', `Capteur ${this.getAttribute('nom') || ''}`);
                 }
                 setValeur(v) { this.shadowRoot.querySelector('.val').textContent = v; }
                 setNom(n)    { this.shadowRoot.querySelector('.nom').textContent = n; }
@@ -77,57 +74,42 @@
     <!-- Contrôleur -->
     <script src="./js/Controllers/AlerteController.js"></script>
 
+    <!-- MVC initialisé ICI, de manière synchrone, avant Chart.js et WebSocket -->
+    <script>
+        window.appAlertes = new AlertController(
+            new AlertModel(),
+            new AlertView(),
+            new CapteurView()
+        );
+    </script>
+
     <!-- Chart.js puis HistoriqueView -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/View/HistoriqueView.js"></script>
 
-    <!-- WebSocket : chargé ici mais la CONNEXION est déclenchée plus bas, après init MVC -->
+    <!-- Graphique initialisé après Chart.js -->
+    <script>
+        window.historiqueView = new HistoriqueView();
+    </script>
+
+    <!-- WebSocket : window.appAlertes EST DÉJÀ PRÊT quand ce script s'exécute -->
     <script src="./js/data/webSocket.js"></script>
 
+    <!-- Bouton installation PWA uniquement -->
     <script>
         window.addEventListener('load', () => {
-
-            // 1. Graphique d'historique
-            try {
-                window.historiqueView = new HistoriqueView();
-            } catch (err) {
-                console.error("Problème graphique :", err);
-            }
-
-            // 2. MVC
-            try {
-                window.appAlertes = new AlertController(
-                    new AlertModel(),
-                    new AlertView(),
-                    new CapteurView()
-                );
-            } catch (err) {
-                console.error("Erreur init MVC :", err);
-            }
-
-            // 3. WebSocket — démarré APRÈS que window.appAlertes soit prêt
-            try {
-                window.connecterWebSocket();
-            } catch (err) {
-                console.error("Erreur WebSocket :", err);
-            }
-
-            // 4. Bouton installation PWA
             let deferredPrompt = null;
             const btnInstall = document.getElementById('btn-install');
             btnInstall.style.display = 'none';
-
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
                 btnInstall.style.display = 'inline-block';
             });
-
             btnInstall.addEventListener('click', async () => {
                 if (!deferredPrompt) return;
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Installation : ${outcome}`);
                 deferredPrompt = null;
                 btnInstall.style.display = 'none';
             });
