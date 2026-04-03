@@ -1,18 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/documentation.css">
-    <title>Documentation</title>
-</head>
-<body>
-    <nav >
+const DocumentationPage = {
+  render() {
+    return `
+<nav >
       <ul>
         <li><a href="index.html">Accueil</a></li>
         <li><a href="documentation.html">Documentation</a></li>
         <li><a href="">Information du compte</a></li>
-        <li><a href="javascript:void(0)" id="auth-btn">Déconnexion</a></li>
+        <li><a href="">Déconnexion</a></li>
       </ul>
     </nav>
 
@@ -39,6 +33,8 @@
             <li><strong>Changements si le projet devait être recommencé :</strong> </li>
         </ul>
     </div>
-    <script src="js/connexion.js"></script>
-</body>
-</html>
+    `;
+  }
+};
+
+export default DocumentationPage;

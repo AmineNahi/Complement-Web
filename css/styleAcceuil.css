@@ -93,3 +93,36 @@ main {
     margin-bottom: 20px; 
     text-align: center;
 }
+
+/* --- ONGLETS --- */
+.tabs {
+  margin-top: 20px;
+}
+.tab-registers {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  gap: 4px;
+}
+.tab-registers button {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-registers button:hover {
+  color: #1e293b;
+}
+.tab-registers button.active-tab {
+  color: #e11d48;
+  font-weight: bold;
+  border-bottom-color: #e11d48;
+}
+.tab-bodies {
+  padding-top: 10px;
+}
