@@ -9,8 +9,6 @@ const NavigationView = (() => {
      */
     init(items, currentPage) {
       _navEl = document.querySelector('#main-nav');
-      console.log('_navEl trouvé :', _navEl);        // doit afficher l'élément nav
-      console.log('items reçus :', items);  
       if (!_navEl) return;
 
       this._render(items, currentPage);
