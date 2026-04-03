@@ -2,8 +2,6 @@ class HistoriqueView {
     constructor() {
         this.ctx = document.getElementById('historique-graph');
         this.chart = null;
-
-        // Données en mémoire : on garde les 24 derniers points
         this.maxPoints = 24;
         this.labels = [];
         this.donneesInt = [];
@@ -41,7 +39,6 @@ class HistoriqueView {
      * Crée le Chart.js ou le recrée s'il existait déjà.
      */
     _creerOuMettreAJourChart() {
-        // Destruction de l'instance précédente si elle existe
         const existant = Chart.getChart(this.ctx);
         if (existant) existant.destroy();
 
@@ -95,7 +92,6 @@ class HistoriqueView {
         const now = new Date();
         const label = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
 
-        // Glissement : on retire l'ancien point si on atteint la limite
         if (this.labels.length >= this.maxPoints) {
             this.labels.shift();
             this.donneesInt.shift();
@@ -110,6 +106,6 @@ class HistoriqueView {
         this.chart.data.labels = this.labels;
         this.chart.data.datasets[0].data = this.donneesInt;
         this.chart.data.datasets[1].data = this.donneesExt;
-        this.chart.update('none'); // 'none' = pas d'animation pour les mises à jour fréquentes
+        this.chart.update('none'); 
     }
 }

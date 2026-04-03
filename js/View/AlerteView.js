@@ -77,7 +77,7 @@ class AlertView {
     afficherAlertes(alertes) {
         this.container.innerHTML = '';
 
-        if (alertes.length === 0) return; // Rien à afficher
+        if (alertes.length === 0) return;
 
         alertes.forEach(alerteData => {
             const div = document.createElement('div');
@@ -88,7 +88,6 @@ class AlertView {
             div.setAttribute('aria-label', `Alerte : ${alerteData.message}. Cliquer pour les détails.`);
             div.style.cssText = "cursor: pointer; background: #ffe4e6; border-left: 5px solid #e11d48; padding: 15px; margin-bottom: 10px; border-radius: 4px;";
 
-            // Ouverture au clic ET à la touche Entrée (accessibilité clavier)
             const ouvrirDetail = () => this.afficherDetail(alerteData);
             div.addEventListener('click', ouvrirDetail);
             div.addEventListener('keydown', (e) => {

@@ -4,7 +4,6 @@ class AlertController {
         this.alertView = alertView;
         this.capteurView = capteurView;
 
-        // Bouton notification : demander la permission
         if (this.alertView.btnNotif) {
             this.alertView.btnNotif.addEventListener('click', () => {
                 this.alertView.demanderPermissionNotification();
