@@ -2,8 +2,51 @@ class Data {
   constructor() {
     this.ListCurrentCapteurs = null;
     this.apiUrl = "https://api.hothothot.dog/";
-    // this.wsUri = "wss://ws.hothothot.dog:9502";
-    this.wsUri = ".";
+    this.wsUri = "wss://ws.hothothot.dog:9502";
+    //this.wsUri = ".";
+  }
+
+  loadData(){
+    // --- Connexion WebSocket ---
+    const websocket = new WebSocket(wsUri);
+
+    websocket.addEventListener("open", () => {
+        log("CONNECTED");
+        websocket.send("ping");
+        setInterval(() => {
+            if (websocket.readyState === WebSocket.OPEN) {
+                websocket.send("ping");
+            }
+        }, 1000);
+    });
+
+    websocket.addEventListener("message", (e) => {
+        if (e.data === "pong" || e.data === "ping") return;
+        try {
+            const data = JSON.parse(e.data);
+            const capteurs = Array.isArray(data) ? data : data.capteurs;
+            console.log("[WS] data brute:", e.data);
+            console.log("[WS] capteurs:", capteurs);
+            if (capteurs && window.appAlertes) {
+                window.appAlertes.traiterDonnees(capteurs);
+            }
+        } catch (err) {
+            console.error("[WS] Erreur parse:", err, e.data);
+        }
+    });
+
+    websocket.addEventListener("close", (event) => {
+        if (!event.wasClean) {
+            log("Déconnecté. Tentative API REST...");
+            getData();
+        } else {
+            log(`Connexion fermée proprement. Code : ${event.code}`);
+        }
+    });
+
+    websocket.addEventListener("error", (err) => {
+        console.error("[WS] Erreur WebSocket :", err);
+    });
   }
   
   loadData(){
@@ -38,6 +81,7 @@ class Data {
     }); 
   }
   async getData(){
+    console.log("la")
     try {
       const response = await fetch(this.apiUrl);
       if (!response.ok) {

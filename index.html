@@ -80,7 +80,7 @@
                 console.warn("Info: Le MVC n'est pas encore actif ou les fichiers sont manquants, mais l'interface continue de fonctionner.");
             }
             try {
-                const appCapteurs = new CapteurController(null, null); 
+                const appCapteurs = new CapteurController(); 
             } catch (error) {
                 console.error("Problème lors de l'initialisation des capteurs :", error);
             }
