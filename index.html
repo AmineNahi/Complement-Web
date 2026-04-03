@@ -58,8 +58,10 @@
     </script>
 
     <script src="./js/Model/AlertModel.js"></script>
+    <script src="./js/Model/CapteurModel.js"></script>
     <script src="./js/View/AlerteView.js"></script>
     <script src="./js/Controllers/AlerteController.js"></script>
+    <script src="./js/Controllers/CapteurController.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/View/HistoriqueView.js"></script>
@@ -76,6 +78,11 @@
                 const appAlertes = new AlertController(new AlertModel(), new AlertView());
             } catch (error) {
                 console.warn("Info: Le MVC n'est pas encore actif ou les fichiers sont manquants, mais l'interface continue de fonctionner.");
+            }
+            try {
+                const appCapteurs = new CapteurController(null, null); 
+            } catch (error) {
+                console.error("Problème lors de l'initialisation des capteurs :", error);
             }
         });
     </script>
