@@ -9,9 +9,6 @@ const AccueilPage = {
           Activer les notifications
         </button>
 
-        <!-- Stats min/max -->
-        <div id="stats-container"></div>
-
         <!-- Alertes -->
         <div id="alert-container" aria-live="polite"></div>
 
