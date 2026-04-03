@@ -31,6 +31,7 @@ websocket.addEventListener("message", (e) =>{
   const message = JSON.parse(e.data);
   log(`RECEIVED: ${message.iteration}: ${message.content}`);
   counter++;
+  console.log(message)
 });
 
 websocket.addEventListener("close", async (event) => {
@@ -39,20 +40,11 @@ websocket.addEventListener("close", async (event) => {
     console.log("Le serveur WebSocket ne fonctionne pas ou la connexion a été perdue. Adoption de la méthode API AJAX.");
 
     // Lancement de ton plan de secours
-    // let val = await getData();
-    let val = {"HotHotHot":"Api v1.0",
-      "capteurs":
-      [{"type":"Thermique",
-      "Nom":"interieur",
-      "Valeur":"16.5",
-      "Timestamp":1774513321},{"type":"Thermique",
-      "Nom":"exterieur",
-      "Valeur":"10",
-      "Timestamp":1774513321}]
-    }
+    let val = await getData();
     if (val.capteurs){
       ListCurrentTemp = (val.capteurs)
     }
+    console.log(ListCurrentTemp)
     displayValue()
   }
 });
@@ -62,15 +54,18 @@ function displayValue(){
   // main.innerHTML = "";
   console.log(ListCurrentTemp)
   ListCurrentTemp.forEach((capteur) => {
-      const nameCapteur = document.createElement("div")
-      nameCapteur.textContent = capteur.Nom
-      const currentTemp = document.createElement("div")
-      currentTemp.textContent = capteur.Value 
-
-      const slotTemp = document.createElement("div")
-      slotTemp.appendChild(currentTemp)
-      slotTemp.appendChild(nameCapteur)
-      main.appendChild(slotTemp)
+    const boxCapteur = document.createElement("capteur-thermique")
+    boxCapteur.id = "capteur-"+capteur.Nom
+    const label = document.createElement("span")
+    label.slot = "nom"
+    label.textContent = capteur.Nom
+    const value = document.createElement("span")
+    value.slot = "valeur"
+    value.id = "valeur-"+capteur.Nom
+    value.textContent = capteur.Valeur
+    main.appendChild(boxCapteur)
+    boxCapteur.appendChild(label)
+    boxCapteur.appendChild(value)
     } 
   ) 
 } 
