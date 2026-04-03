@@ -78,7 +78,7 @@ class AlertView {
         if (Notification.permission === 'granted') {
             const options = {
                 body: alerteData.message,
-                icon: 'assets/favicon.png' 
+                // icon: 'assets/favicon.png' 
             };
             const notif = new Notification(titre, options);
 

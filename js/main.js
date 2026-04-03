@@ -1,4 +1,4 @@
-import NavController from './controllers/NavController.js';
+import NavController from './Controllers/NavController.js';
 import Router from './router/Router.js';
 
 // Le Controller init le Model et la View puis le Router s'abonne à l'EventBus
