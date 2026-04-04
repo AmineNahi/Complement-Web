@@ -1,4 +1,4 @@
-class HistoriqueView {
+class GraphView {
     constructor() {
         this.ctx = document.getElementById('historique-graph');
         this.chart = null; 

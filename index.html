@@ -7,6 +7,7 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#534AB7" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MonPWA" />
 
     <title>HOT HOT HOT</title>
@@ -42,12 +43,12 @@
     <script src="./js/data/Data.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="./js/views/HistoriqueView.js"></script>
+    <script src="./js/views/GraphView.js"></script>
 
     <script>
         window.addEventListener('load', () => {
             try {
-                const historique = new HistoriqueView();
+                const historique = new GraphView();
             } catch (error) {
                 console.error("Problème avec le graphique :", error);
             }

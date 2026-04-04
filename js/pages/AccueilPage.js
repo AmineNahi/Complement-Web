@@ -9,12 +9,26 @@ const AccueilPage = {
 
         <div id="stats-container"></div>
         <div id="alert-container" aria-live="polite"></div>
+        
+        <div role="tablist" aria-label="Navigation des sections">
+          <button class = "button-onglet" role="tab" aria-selected="true" aria-controls="panel-infos" tabindex="0">
+            Informations
+          </button>
+          <button class = "button-onglet" role="tab" aria-selected="false" aria-controls="panel-historique" tabindex="-1">
+            Historique
+          </button>
+        </div>
 
-        <div class="capteurs-container" id="capteurs-container">
+        <div id="panel-infos" role="tabpanel">
+          <div class="capteurs-container" id="capteurs-container"></div>
+        </div>
+
+        <div id="panel-historique" role="tabpanel" hidden>
+          <div class="historique-container" id="historique-container"></div>
         </div>
 
         <div class="graph-container">
-            <h2>Historique des dernières 24h</h2>
+            <h2>Historique des 50 derniers valeurs</h2>
             <canvas id="historique-graph"></canvas>
         </div>
     </main> 
@@ -45,10 +59,12 @@ const AccueilPage = {
     let vueHistorique;
 
     try {
-      vueHistorique = new HistoriqueView();
+      vueHistorique = new GraphView();
     } catch (e) {
       console.error("Problème avec le graphique :", e);
     }
+
+    this._initOnglets();
 
     const dataClass = new Data();
     dataClass.start((currentCapteurs, historique) => {

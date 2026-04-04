@@ -1,13 +1,23 @@
 class Data {
     constructor() {
-        this.ListCurrentCapteurs = null;
-        this.List50LastValue = [];
+
+        const savedCurrent = localStorage.getItem('hothothot_current');
+        const savedHistory = localStorage.getItem('hothothot_history');
+
+        this.ListCurrentCapteurs = savedCurrent ? JSON.parse(savedCurrent) : [];
+        this.List50LastValue = savedHistory ? JSON.parse(savedHistory) : [];
         this.apiUrl = "https://api.hothothot.dog/";
         this.wsUri = "wss://ws.hothothot.dog:9502";
         this.apiInterval = null;
     }
 
     start(onDataReady) {
+        console.log(this.ListCurrentCapteurs)
+        console.log(this.List50LastValue)
+        if (typeof onDataReady === "function" && this.ListCurrentCapteurs.length > 0) {
+            onDataReady(this.ListCurrentCapteurs, this.List50LastValue);
+        }
+
         this.connectWebSocket(onDataReady);
     }
 
@@ -71,6 +81,8 @@ class Data {
         if (this.List50LastValue.length > 50) {
             this.List50LastValue.shift(); 
         }
+        localStorage.setItem('hothothot_current', JSON.stringify(this.ListCurrentCapteurs));
+        localStorage.setItem('hothothot_history', JSON.stringify(this.List50LastValue));
 
         if (typeof onDataReady === "function") {
             onDataReady(this.ListCurrentCapteurs, this.List50LastValue);
