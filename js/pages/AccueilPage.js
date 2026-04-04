@@ -1,72 +1,63 @@
 const AccueilPage = {
   render() {
     return `
-      <section aria-labelledby="titre-accueil">
-        <h1 id="titre-accueil">Tableau de bord</h1>
+        <h1>Tableau de bord domotique</h1> 
 
-        <!-- Bouton notifications -->
-        <button id="btn-notifications" style="margin: 1rem 0;">
-          Activer les notifications
-        </button>
+        <div class="actions-container">
+            <button id="btn-notifications">Activer les notifications</button>
+        </div>
 
-        <!-- Stats min/max -->
         <div id="stats-container"></div>
-
-        <!-- Alertes -->
         <div id="alert-container" aria-live="polite"></div>
 
-        <!-- Onglets -->
-        <div role="tablist" aria-label="Navigation des sections">
-          <button role="tab" aria-selected="true" aria-controls="panel-historique" tabindex="0">
-            Historique
-          </button>
-          <button role="tab" aria-selected="false" aria-controls="panel-infos" tabindex="-1">
-            Informations
-          </button>
+        <div class="capteurs-container" id="capteurs-container">
         </div>
 
-        <!-- Panel historique — visible par défaut, PAS d'attribut hidden -->
-        <div id="panel-historique" role="tabpanel">
-          <canvas id="historique-graph" aria-label="Graphique des températures"></canvas>
+        <div class="graph-container">
+            <h2>Historique des dernières 24h</h2>
+            <canvas id="historique-graph"></canvas>
         </div>
+    </main> 
 
-        <!-- Panel informations — caché par défaut -->
-        <div id="panel-infos" role="tabpanel" hidden>
-
-          <!-- Capteurs — uniquement dans ce panel -->
-          <div class="capteurs-grid">
-            <capteur-thermique>
-              <span slot="nom">Intérieur</span>
-              <span id="valeur-int" slot="valeur">--</span>
-            </capteur-thermique>
-            <capteur-thermique>
-              <span slot="nom">Extérieur</span>
-              <span id="valeur-ext" slot="valeur">--</span>
-            </capteur-thermique>
-          </div>
-
+    <template id="capteur-template">
+        <link rel="stylesheet" href="./css/styleAcceuil.css">
+        <div class="capteur-box" role="region" aria-label="Capteur de température">
+            <div class="nom"><slot name="nom">Capteur Inconnu</slot></div>
+            <div class="valeur"><slot name="valeur">0</slot> °C</div>
         </div>
-
-      </section>
+    </template>
+     <script src = "./js/data/webSocket.js"></script>
+    <script>
+        customElements.define('capteur-thermique',
+            class extends HTMLElement {
+                constructor() {
+                    super();
+                    const template = document.getElementById('capteur-template').content;
+                    this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
+                }
+            }
+        );
+    </script>
     `;
   },
 
   init() {
+    let vueHistorique;
+
     try {
-      new HistoriqueView();
+      vueHistorique = new HistoriqueView();
     } catch (e) {
       console.error("Problème avec le graphique :", e);
     }
 
-    try {
-      new AlertController(new AlertModel(), new AlertView());
-    } catch (e) {
-      console.warn("MVC alertes non actif :", e);
-    }
-
-    this._initOnglets();
+    const dataClass = new Data();
+    dataClass.start((currentCapteurs, historique) => {
+        
+        if (vueHistorique && historique.length > 0) {
+            vueHistorique.updateGraph(historique);
+        }
+    });
   },
-
   _initOnglets() {
     const tabs   = document.querySelectorAll('[role="tab"]');
     const panels = document.querySelectorAll('[role="tabpanel"]');

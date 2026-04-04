@@ -1,30 +1,10 @@
 class HistoriqueView {
     constructor() {
         this.ctx = document.getElementById('historique-graph');
+        this.chart = null; 
         if (this.ctx) {
             this.initGraph();
         }
-    }
-
-    genererDonneesFictives() {
-        const heures = [];
-        const donneesInt = [];
-        const donneesExt = [];
-
-        for (let i = 0; i <= 24; i++) {
-            heures.push(`${i}h00`);
-            
-            // Fausse température Intérieure 
-            const tempInt = 19 + (Math.random() * 3);
-            donneesInt.push(tempInt.toFixed(1));
-
-            // Fausse température Extérieure 
-            const baseExt = 15 - Math.abs(12 - i); 
-            const tempExt = baseExt + (Math.random() * 4); 
-            donneesExt.push(tempExt.toFixed(1));
-        }
-
-        return { heures, donneesInt, donneesExt };
     }
 
     initGraph() {
@@ -32,16 +12,15 @@ class HistoriqueView {
         if (chartStatus != undefined) {
             chartStatus.destroy(); 
         }
-        const data = this.genererDonneesFictives();
 
-        new Chart(this.ctx, {
+        this.chart = new Chart(this.ctx, {
             type: 'line',
             data: {
-                labels: data.heures,
+                labels: [], 
                 datasets: [
                     {
                         label: 'Intérieur (°C)',
-                        data: data.donneesInt,
+                        data: [], 
                         borderColor: '#e11d48', 
                         backgroundColor: 'rgba(225, 29, 72, 0.1)', 
                         borderWidth: 2,
@@ -50,7 +29,7 @@ class HistoriqueView {
                     },
                     {
                         label: 'Extérieur (°C)',
-                        data: data.donneesExt,
+                        data: [], 
                         borderColor: '#3b82f6', 
                         backgroundColor: 'rgba(59, 130, 246, 0.1)', 
                         borderWidth: 2,
@@ -65,5 +44,33 @@ class HistoriqueView {
                 scales: { y: { title: { display: true, text: 'Température (°C)' } } }
             }
         });
+    }
+
+    updateGraph(list50LastValue) {
+        if (!this.chart) return;
+
+        const labels = [];
+        const dataInt = [];
+        const dataExt = [];
+
+        list50LastValue.forEach(groupeCapteurs => {
+            let interieur = groupeCapteurs.find(c => c.Nom.toLowerCase() === 'interieur');
+            let exterieur = groupeCapteurs.find(c => c.Nom.toLowerCase() === 'exterieur');
+
+            if (groupeCapteurs.length > 0) {
+                let ts = groupeCapteurs[0].Timestamp;
+                const date = new Date(ts.toString().length === 10 ? ts * 1000 : ts); 
+                labels.push(date.toLocaleTimeString('fr-FR'));
+            }
+
+            dataInt.push(interieur ? parseFloat(interieur.Valeur) : null);
+            dataExt.push(exterieur ? parseFloat(exterieur.Valeur) : null);
+        });
+
+        this.chart.data.labels = labels;
+        this.chart.data.datasets[0].data = dataInt;
+        this.chart.data.datasets[1].data = dataExt;
+
+        this.chart.update(); 
     }
 }

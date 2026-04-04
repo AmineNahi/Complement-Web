@@ -9,8 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MonPWA" />
 
-    <title>Mon Projet PWA</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <title>HOT HOT HOT</title>
+    <link rel="stylesheet" href="./css/styleAcceuil.css">
+    <!-- <link rel="stylesheet" href="/css/styles.css" /> -->
   </head>
 
   <body>
@@ -33,71 +34,36 @@
 
     <script type="module" src="js/main.js"></script>
 
-    <div id="stats-container"></div>
-    <div id="alert-container" aria-live="polite"></div>
-
-    <div class="tabs">
-      <div
-        class="tab-registers"
-        role="tablist"
-        aria-label="Sections du tableau de bord"
-      >
-      </div>
-
-      <div class="tab-bodies">
-
-        <!-- Onglet 2 : historique -->
-        <div
-          id="panel-history"
-          role="tabpanel"
-          aria-labelledby="tab-history"
-          hidden
-        >
-          <div class="graph-container">
-            <h2>Historique des dernières 24h</h2>
-            <canvas id="historique-graph"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <template id="capteur-template">
-      <link rel="stylesheet" href="./css/styleAcceuil.css" />
-      <div
-        class="capteur-box"
-        role="region"
-        aria-label="Capteur de température"
-      >
-        <div class="nom">
-          <slot name="nom">Capteur Inconnu</slot>
-        </div>
-        <div class="valeur">
-          <slot name="valeur">0</slot> °C
-        </div>
-      </div>
-    </template>
-
-    <script>
-      customElements.define(
-        "capteur-thermique",
-        class extends HTMLElement {
-          constructor() {
-            super();
-            const template = document.getElementById("capteur-template").content;
-            this.attachShadow({ mode: "open" }).appendChild(
-              template.cloneNode(true)
-            );
-          }
-        }
-      );
-    </script>
-
     <script src="./js/models/AlertModel.js"></script>
+    <script src="./js/models/CapteurModel.js"></script>
     <script src="./js/views/AlerteView.js"></script>
-    <script src="./js/views/Onglet.js"></script>
-    <script src="./js/controllers/AlerteController.js"></script> 
+    <script src="./js/controllers/AlerteController.js"></script>
+    <script src="./js/controllers/CapteurController.js"></script>
+    <script src="./js/data/Data.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/views/HistoriqueView.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            try {
+                const historique = new HistoriqueView();
+            } catch (error) {
+                console.error("Problème avec le graphique :", error);
+            }
+
+            try {
+                const appAlertes = new AlertController(new AlertModel(), new AlertView());
+            } catch (error) {
+                console.warn("Info: Le MVC n'est pas encore actif ou les fichiers sont manquants, mais l'interface continue de fonctionner.");
+            }
+            try {
+                const appCapteurs = new CapteurController(null, null); 
+            } catch (error) {
+                console.error("Problème lors de l'initialisation des capteurs :", error);
+            }
+        });
+    </script>
 
   </body>
 </html>
