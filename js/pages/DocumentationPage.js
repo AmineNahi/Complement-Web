@@ -21,9 +21,24 @@ const DocumentationPage = {
                         Lien vers le dépôt GitHub
                     </a>
                 </li>
-                <li><strong>Gestion de projet :</strong> </li>
-                <li><strong>Principales difficultés :</strong> </li>
-                <li><strong>Changements si le projet devait être recommencé :</strong> </li>
+                <li>
+                    <strong>Gestion de projet :</strong> 
+                    Utilisation de Git et GitHub pour le versionnement du code et le travail collaboratif. 
+                    Organisation du projet en architecture MVC (Model - View - Controller) afin de séparer les responsabilités. 
+                    Répartition des tâches entre les membres de l'équipe et communication régulière pour suivre l'avancement. 
+                </li>
+                <li>
+                    <strong>Principales difficultés :</strong> 
+                    Mise en place du Service Worker, 
+                    configuration du manifest.json pour rendre la PWA installable,  
+                    configuration du certificat pour le HTTPS,
+                </li>
+                <li>
+                    <strong>Changements si le projet devait être recommencé :</strong> 
+                    Tester plus tôt les fonctionnalités PWA, 
+                    ajouter des tests réguliers pour détecter rapidement les erreurs, 
+                    et améliorer la gestion des erreurs dans le Service Worker.
+                </li>
             </ul>
         </div>
     </div>
